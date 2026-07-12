@@ -58,7 +58,7 @@ https://www.kaggle.com/competitions/home-credit-default-risk/data
 - Model yang dibangun bersifat dummy project untuk keperluan portfolio, bukan untuk digunakan dalam keputusan kredit nyata.
 
 ## 8. Struktur Project
-'''
+```
 credit-risk-scoring/
 ├── README.md
 ├── data/
@@ -85,7 +85,7 @@ credit-risk-scoring/
 ├── reports/
 │   └── figures/
 └── requirements.txt
-'''
+```
 ## 9. Cara Menjalankan Project
 
 git clone <repo-url>
