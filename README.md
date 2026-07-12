@@ -58,34 +58,34 @@ https://www.kaggle.com/competitions/home-credit-default-risk/data
 - Model yang dibangun bersifat dummy project untuk keperluan portfolio, bukan untuk digunakan dalam keputusan kredit nyata.
 
 ## 8. Struktur Project
-
+'''
 credit-risk-scoring/
-README.md
-- data/
-- raw/
-- processed/
-- notebooks/
-00_problem_definition.md
-01_eda.ipynb
-02_feature_engineering.ipynb
-03_modeling.ipynb
-04_evaluation.ipynb
-- src/
-__init__.py
-config.py
-dataset.py
-cleaning.py
-features.py
--- modeling/
-__init__.py
-train.py
-predict.py
-plots.py
-- models/
-- reports/
-- figures/
-requirements.txt
-
+├── README.md
+├── data/
+│   ├── raw/
+│   └── processed/
+├── notebooks/
+│   ├── 00_problem_definition.md
+│   ├── 01_eda.ipynb
+│   ├── 02_feature_engineering.ipynb
+│   ├── 03_modeling.ipynb
+│   └── 04_evaluation.ipynb
+├── src/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── dataset.py
+│   ├── cleaning.py
+│   ├── features.py
+│   └── modeling/
+│       ├── __init__.py
+│       ├── train.py
+│       ├── predict.py
+│       └── plots.py
+├── models/
+├── reports/
+│   └── figures/
+└── requirements.txt
+'''
 ## 9. Cara Menjalankan Project
 
 git clone <repo-url>
