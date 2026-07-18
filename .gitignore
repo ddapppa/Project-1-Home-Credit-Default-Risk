@@ -1,0 +1,22 @@
+# Dataset mentah & besar
+Dataset/raw/
+Dataset/processed/
+*.csv
+
+# Skill/materi belajar (bukan bagian project)
+SKILL Perplexity Data Scientist/
+
+# Model hasil training (biasanya besar)
+models/
+*.pkl
+*.h5
+*.joblib
+
+# Python cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Environment
+venv/
+.env
