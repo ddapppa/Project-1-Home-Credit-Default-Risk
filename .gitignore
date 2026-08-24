@@ -1,0 +1,23 @@
+# Dataset mentah & hasil olahan (biasanya besar, tidak perlu di-push)
+data/raw/
+data/processed/
+*.csv
+
+# Model hasil training (biasanya besar)
+models/
+*.pkl
+*.h5
+*.joblib
+
+# Python cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Environment
+venv/
+.env
+
+# Editor / OS (opsional tapi disarankan)
+.vscode/
+.DS_Store

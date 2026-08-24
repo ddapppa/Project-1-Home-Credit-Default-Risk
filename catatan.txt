@@ -1,0 +1,27 @@
+FEATURE ENGGINERING
+
+1. 18 Kolom Near-Zero Variance — Sudah Ditangani, Tapi Sengaja Belum Dibuang
+ensure_near_zero_variance_dtype() cuma merapikan tipe data (int8), belum membuang kolomnya. Ini disengaja: cleaning bertugas "membersihkan" (missing, anomali, tipe data), sedangkan "menyeleksi fitur" itu tanggung jawab 03_feature_engineering.ipynb lewat VarianceThreshold. Kalau saya buang sekarang, kita jadi mencampur dua tanggung jawab berbeda dalam satu file — kurang rapi untuk portofolio.
+
+AMT_INCOME_TOTAL outlier, EXT_SOURCE_1/3 missing, DAYS_EMPLOYED anomali — Semua Sudah Ditangani
+Masing-masing: create_log_features(), impute_ext_source(), fix_days_employed_anomaly().
+
+
+
+
+MODELING 
+1. Normalisasi data (float/int/str beragam) — Ini BELUM ada di cleaning.py, dan Saya Sengaja Tidak Menaruhnya di Sana
+
+Ini pertanyaan bagus dan jawabannya perlu didiskusikan, bukan cuma dikonfirmasi:
+
+Scaling/normalisasi (StandardScaler, MinMaxScaler) tidak boleh dilakukan di tahap cleaning karena alasan teknis penting: scaler harus di-fit hanya dari data training, lalu diterapkan ke data validasi/test pakai parameter (mean, std) yang sama dari training. Kalau saya normalisasi sekarang — sebelum train-test split — mean dan std yang dipakai akan menghitung dari seluruh data termasuk yang nantinya jadi test set. Ini disebut data leakage, dan efeknya performa model kelihatan bagus saat evaluasi tapi ternyata cuma ilusi karena informasi masa depan sudah "bocor" ke preprocessing.
+
+Rekomendasi saya: scaling ditaruh di 04_modeling.ipynb, di dalam sklearn.Pipeline bersama model (Pipeline([("scaler", StandardScaler()), ("model", LogisticRegression())])), supaya fit cuma terjadi di data training tiap fold cross-validation. Satu hal lagi yang penting: kalau model utamamu tree-based (LightGBM/XGBoost) — scaling sama sekali tidak diperlukan, karena algoritma pohon keputusan tidak terpengaruh skala nilai. Jadi keputusan ini juga tergantung model apa yang akan dipakai nanti di 04_modeling.ipynb.
+
+2. Imbalance TARGET (91,93% vs 8,07%) — Ini Juga BELUM Ditangani, dan Saya Punya Pendapat Berbeda dari Asumsi Umum
+
+Kamu benar ini harus diperhatikan khusus, tapi penanganannya (SMOTE/class_weight/undersampling) bukan pekerjaan cleaning — itu pekerjaan modeling, dengan alasan yang sama seperti normalisasi: SMOTE membuat sampel sintetis berdasarkan pola data training, jadi kalau diterapkan sebelum split, sampel sintetis bisa "bocor" mirip dengan test set, membuat evaluasi jadi tidak jujur.
+
+Sekarang saya kasih pendapat saya secara terbuka (sesuai yang kamu minta):
+
+Rencana saya: coba class_weight/scale_pos_weight dulu di 04_modeling.ipynb, baru kalau performanya masih kurang bagus (dilihat dari Precision-Recall AUC atau F1 kelas minoritas, bukan accuracy karena accuracy menyesatkan di data imbalance seperti ini), baru eksperimen SMOTE sebagai pembanding.
