@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ app_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+
+<body class="bg-[#F4F7FB] text-slate-800">
+  <header class="bg-[#0A2E5C] text-white shadow-md border-b border-[#133E75]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-500 flex items-center justify-center shadow-inner">
+          <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-xl tracking-tight text-white">BankKu</span>
+            <span
+              class="text-[11px] font-semibold uppercase tracking-wider bg-sky-500/20 text-sky-200 px-2 py-0.5 rounded border border-sky-400/30">
+              Risk Engine
+            </span>
+          </div>
+          <h1 class="text-xs sm:text-sm text-sky-100/80 font-medium">
+            Sistem Prediksi Risiko Kredit
+          </h1>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <!-- MODE SELECTOR -->
+    <div class="w-full mb-2">
+      <div class="tabs bg-white rounded-2xl p-1.5 shadow-sm border border-slate-200/80 flex items-center gap-1.5">
+        <button
+          class="tab-btn active flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200"
+          data-tab="existing">
+          <i data-lucide="user-check" class="w-5 h-5"></i>
+          <span>Nasabah Lama</span>
+        </button>
+        <button
+          class="tab-btn flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200"
+          data-tab="new">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>
+          <span>Nasabah Baru</span>
+        </button>
+      </div>
+      <p class="text-center text-xs text-slate-500 mt-2 mb-8" id="tab-subtext">
+        Evaluasi instan berbasis data riwayat kredit dan portofolio internal nasabah terdaftar.
+      </p>
+    </div>
+
+
+    <!-- TAB: NASABAH EXISTING -->
+    <section id="tab-existing" class="tab-panel active">
+      <div class="card">
+        <div class="text-center mb-6">
+          <h2 class="text-xl font-bold text-[#0A2E5C]">Evaluasi Nasabah Lama</h2>
+          <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+            Masukkan nomor <code
+              class="text-xs font-mono font-bold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">SK_ID_CURR</code>
+            nasabah untuk mengambil data riwayat dan menghitung estimasi probabilitas risiko gagal bayar.
+          </p>
+        </div>
+
+
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Nomor SK ID Curr <span
+            class="required">*</span></label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i data-lucide="search" class="w-5 h-5"></i>
+          </div>
+          <input type="number" id="sk_id_curr" placeholder="Contoh: 426033"
+            class="w-full pl-11 pr-4 py-3 bg-slate-50/50 hover:bg-white focus:bg-white rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 font-mono text-base text-slate-800 transition-all outline-none"
+            required>
+        </div>
+        <p class="hint-text">Kombinasi probabilitas untuk demo: lihat contoh di bawah (mencakup semua rentang risiko,
+          termasuk titik ambang batas persis).</p>
+
+
+        <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200/60 mt-4 mb-2">
+          <div class="flex items-center justify-center gap-1 text-xs font-medium text-slate-700 mb-3">
+            <i data-lucide=class="w-3.5 h-3.5 text-sky-600"></i>
+            ID Contoh Pengujian (klik untuk isi otomatis):
+          </div>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button type="button" onclick="document.getElementById('sk_id_curr').value=426033;"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium transition">
+              426033 <span class="text-[10px] text-emerald-600">(~5% Sangat Rendah)</span>
+            </button>
+            <button type="button" onclick="document.getElementById('sk_id_curr').value=359624;"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium transition">
+              359624 <span class="text-[10px] text-emerald-600">(~30% Rendah)</span>
+            </button>
+            <button type="button" onclick="document.getElementById('sk_id_curr').value=272824;"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium transition">
+              272824 <span class="text-[10px] text-emerald-600">(~60% Mendekati Batas)</span>
+            </button>
+            <button type="button" onclick="document.getElementById('sk_id_curr').value=114228;"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 text-xs font-medium transition">
+              114228 <span class="text-[10px] text-amber-700">(Persis di Ambang Batas)</span>
+            </button>
+            <button type="button" onclick="document.getElementById('sk_id_curr').value=255863;"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 text-xs font-medium transition">
+              255863 <span class="text-[10px] text-amber-700">(~72% Tinggi)</span>
+            </button>
+            <button type="button" onclick="document.getElementById('sk_id_curr').value=366811;"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 text-xs font-medium transition">
+              366811 <span class="text-[10px] text-amber-700">(~90% Sangat Tinggi)</span>
+            </button>
+          </div>
+        </div>
+
+
+        <button id="btn-check-existing" class="btn-primary mt-4 w-full flex items-center justify-center gap-2">
+          <i data-lucide="search" class="w-4 h-4"></i>
+          Cek Skor Risiko
+        </button>
+      </div>
+    </section>
+
+
+    <!-- TAB: NASABAH BARU -->
+    <section id="tab-new" class="tab-panel">
+      <nav class="stepper-wrap mb-8">
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/90">
+          <ol class="grid grid-cols-4 gap-2 sm:gap-4">
+            <li class="stepper">
+              <div class="step active" data-step="1">
+                <div class="step-bubble"><i data-lucide="user" class="w-4 h-4"></i></div>
+                <span class="step-title">Data Pribadi</span>
+                <span class="step-subtitle">Identitas & Keluarga</span>
+              </div>
+            </li>
+            <li class="stepper">
+              <div class="step" data-step="2">
+                <div class="step-bubble"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
+                <span class="step-title">Pekerjaan</span>
+                <span class="step-subtitle">Status & Profesi</span>
+              </div>
+            </li>
+            <li class="stepper">
+              <div class="step" data-step="3">
+                <div class="step-bubble"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+                <span class="step-title">Pengajuan</span>
+                <span class="step-subtitle">Kredit & Keuangan</span>
+              </div>
+            </li>
+            <li class="stepper">
+              <div class="step" data-step="4">
+                <div class="step-bubble"><i data-lucide="clipboard-check" class="w-4 h-4"></i></div>
+                <span class="step-title">Review</span>
+                <span class="step-subtitle">Verifikasi Akhir</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </nav>
+
+
+      <form id="form-new" novalidate>
+        <!-- STEP 1: DATA PRIBADI -->
+        <div class="form-step active" data-step="1">
+          <div class="card">
+            <div class="card-header-icon">
+              <i data-lucide="user" class="w-5 h-5"></i>
+              <h3>Data Pribadi & Kontrak</h3>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Jenis Kontrak <span class="required">*</span></label>
+                <select name="name_contract_type" required>
+                  <option value="Cash loans">Pinjaman Tunai</option>
+                  <option value="Revolving loans">Pinjaman Bergulir</option>
+                </select>
+                <span class="field-hint">Struktur produk pembiayaan yang dipilih nasabah.</span>
+              </div>
+              <div class="field">
+                <label>Jenis Kelamin <span class="required">*</span></label>
+                <select name="code_gender" required>
+                  <option value="M">Laki-laki</option>
+                  <option value="F">Perempuan</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Punya Mobil? <span class="required">*</span></label>
+                <select name="flag_own_car" id="flag_own_car" required>
+                  <option value="N">Tidak</option>
+                  <option value="Y">Ya</option>
+                </select>
+              </div>
+              <div class="field hidden" id="field-own-car-age">
+                <label>Usia Mobil (tahun)</label>
+                <input type="number" name="own_car_age" min="0" max="80">
+              </div>
+              <div class="field">
+                <label>Punya Rumah/Tanah? <span class="required">*</span></label>
+                <select name="flag_own_realty" required>
+                  <option value="Y">Ya</option>
+                  <option value="N">Tidak</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Pendamping Saat Mengajukan <span class="required">*</span></label>
+                <select name="name_type_suite" required>
+                  <option value="Unaccompanied">Sendiri</option>
+                  <option value="Family">Keluarga</option>
+                  <option value="Spouse, partner">Pasangan</option>
+                  <option value="Children">Anak</option>
+                  <option value="Other_A">Lainnya</option>
+                </select>
+                <span class="field-hint">Cek kembali ke app/schemas/applicant.py untuk memastikan value "Other_A" sudah persis sesuai daftar Literal yang divalidasi.</span>
+              </div>
+              <div class="field">
+                <label>Tanggal Lahir <span class="required">*</span></label>
+                <input type="date" name="tanggal_lahir" required>
+                <span class="field-hint">Syarat usia perbankan: 18-100 tahun.</span>
+              </div>
+              <div class="field">
+                <label>Jumlah Anak <span class="required">*</span></label>
+                <input type="number" name="cnt_children" min="0" max="20" value="0" required>
+              </div>
+              <div class="field">
+                <label>Jumlah Anggota Keluarga <span class="required">*</span></label>
+                <input type="number" name="cnt_fam_members" min="1" max="20" value="1" required>
+                <span class="field-hint">Termasuk pemohon, pasangan, dan anak.</span>
+              </div>
+            </div>
+            <div class="flex justify-end mt-4">
+              <button type="button" class="btn-primary btn-next flex items-center gap-2" data-next="2">
+                Lanjut <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- STEP 2: PEKERJAAN -->
+        <div class="form-step" data-step="2">
+          <div class="card">
+            <div class="card-header-icon">
+              <i data-lucide="briefcase" class="w-5 h-5"></i>
+              <h3>Data Pekerjaan & Profil Sosial</h3>
+            </div>
+            <div class="field">
+              <label>Status Pekerjaan <span class="required">*</span></label>
+              <select name="status_pekerjaan" id="status_pekerjaan" required>
+                <option value="Bekerja">Bekerja</option>
+                <option value="Tidak Bekerja">Tidak Bekerja</option>
+              </select>
+            </div>
+            <div id="fields-bekerja" class="grid-2">
+              <div class="field">
+                <label>Jenis Pekerjaan</label>
+                <select name="occupation_type">
+                  <option value="Accountants">Akuntan</option>
+                  <option value="Cleaning staff">Staf Kebersihan</option>
+                  <option value="Cooking staff">Staf Dapur/Juru Masak</option>
+                  <option value="Core staff">Staf Inti</option>
+                  <option value="Drivers">Pengemudi/Sopir</option>
+                  <option value="HR staff">Staf SDM</option>
+                  <option value="High skill tech staff">Staf Teknis Ahli</option>
+                  <option value="IT staff">Staf IT</option>
+                  <option value="Laborers">Buruh</option>
+                  <option value="Low-skill Laborers">Low-skill Buruh</option>
+                  <option value="Managers">Manajer</option>
+                  <option value="Medicine staff">Tenaga Medis</option>
+                  <option value="Private service staff">Staf Layanan Pribadi</option>
+                  <option value="Realty agents">Agen Properti</option>
+                  <option value="Sales staff">Staf Penjualan/Sales</option>
+                  <option value="Secretaries">Sekretaris</option>
+                  <option value="Security staff">Staf Keamanan/Satpam</option>
+                  <option value="Waiters/barmen staff">Pelayan/Bartender</option>
+                  <option value="Unknown_Occupation">Lainnya/Tidak Diketahui</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Jenis Organisasi/Perusahaan</label>
+                <select name="organization_type" id="organization_type">
+                  <option value="Business Entity Type 3">Badan Usaha Tipe 3</option>
+                  <option value="Business Entity Type 2">Badan Usaha Tipe 2</option>
+                  <option value="Business Entity Type 1">Badan Usaha Tipe 1</option>
+                  <option value="Bank">Bank</option>
+                  <option value="Government">Pemerintahan</option>
+                  <option value="Self-employed">Wiraswasta</option>
+                  <option value="School">Sekolah/Instansi Pendidikan</option>
+                  <option value="Medicine">Kesehatan/Medis</option>
+                  <option value="Construction">Konstruksi</option>
+                  <option value="Trade: type 3">Perdagangan: Tipe 3</option>
+                  <option value="Trade: type 1">Perdagangan: Tipe 1</option>
+                  <option value="Trade: type 2">Perdagangan: Tipe 2</option>
+                  <option value="Trade: type 4">Perdagangan: Tipe 4</option>
+                  <option value="Trade: type 6">Perdagangan: Tipe 6</option>
+                  <option value="Trade: type 7">Perdagangan: Tipe 7</option>
+                  <option value="Industry: type 1">Industri: Tipe 1</option>
+                  <option value="Industry: type 2">Industri: Tipe 2</option>
+                  <option value="Industry: type 3">Industri: Tipe 3</option>
+                  <option value="Industry: type 4">Industri: Tipe 4</option>
+                  <option value="Industry: type 5">Industri: Tipe 5</option>
+                  <option value="Industry: type 6">Industri: Tipe 6</option>
+                  <option value="Industry: type 7">Industri: Tipe 7</option>
+                  <option value="Industry: type 9">Industri: Tipe 9</option>
+                  <option value="Industry: type 10">Industri: Tipe 10</option>
+                  <option value="Industry: type 11">Industri: Tipe 11</option>
+                  <option value="Industry: type 12">Industri: Tipe 12</option>
+                  <option value="Industry: type 13">Industri: Tipe 13</option>
+                  <option value="Transport: type 1">Transportasi: Tipe 1</option>
+                  <option value="Transport: type 2">Transportasi: Tipe 2</option>
+                  <option value="Transport: type 3">Transportasi: Tipe 3</option>
+                  <option value="Transport: type 4">Transportasi: Tipe 4</option>
+                  <option value="Advertising">Periklanan</option>
+                  <option value="Agriculture">Pertanian</option>
+                  <option value="Cleaning">Jasa Kebersihan</option>
+                  <option value="Culture">Budaya/Seni</option>
+                  <option value="Electricity">Listrik/Energi</option>
+                  <option value="Emergency">Layanan Darurat</option>
+                  <option value="Hotel">Perhotelan</option>
+                  <option value="Housing">Perumahan</option>
+                  <option value="Insurance">Asuransi</option>
+                  <option value="Kindergarten">TK/PAUD</option>
+                  <option value="Legal Services">Jasa Hukum</option>
+                  <option value="Military">Militer</option>
+                  <option value="Mobile">Telekomunikasi Seluler</option>
+                  <option value="Postal">Jasa Pos</option>
+                  <option value="Police">Kepolisian</option>
+                  <option value="Realtor">Agen Properti (Realtor)</option>
+                  <option value="Religion">Keagamaan</option>
+                  <option value="Restaurant">Restoran</option>
+                  <option value="Security">Keamanan</option>
+                  <option value="Security Ministries">Kementerian Keamanan</option>
+                  <option value="Services">Jasa Umum</option>
+                  <option value="Telecom">Telekomunikasi</option>
+                  <option value="University">Universitas</option>
+                  <option value="Not_Working">Tidak Bekerja</option>
+                  <option value="Rare">Kategori Jarang (Rare)</option>
+                  <option value="Other">Lainnya</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Tanggal Mulai Kerja</label>
+                <input type="date" name="tanggal_mulai_kerja">
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Jenis Penghasilan <span class="required">*</span></label>
+                <select name="name_income_type" id="name_income_type" required>
+                  <option value="" disabled>-- Pilih Jenis Penghasilan --</option>
+                  <option value="Working" data-employment="working" selected>Karyawan</option>
+                  <option value="Commercial associate" data-employment="working">Wiraswasta</option>
+                  <option value="State servant" data-employment="working">PNS/ASN</option>
+                  <option value="Pensioner" data-employment="not-working">Pensioner (Pensiunan)</option>
+                  <option value="Rare" data-employment="not-working">Lainnya (Rare)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Pendidikan Terakhir <span class="required">*</span></label>
+                <select name="name_education_type" required>
+                  <option value="Higher education">Sarjana (S1/D3/D4)</option>
+                  <option value="Secondary / secondary special">SMA/SMK Sederajat</option>
+                  <option value="Incomplete higher">Kuliah Tidak Selesai (Drop Out)</option>
+                  <option value="Lower secondary">SMP Sederajat</option>
+                  <option value="Academic degree">Pascasarjana (S2/S3)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Status Pernikahan <span class="required">*</span></label>
+                <select name="name_family_status" required>
+                  <option value="Married">Menikah</option>
+                  <option value="Single / not married">Lajang/Belum Menikah</option>
+                  <option value="Civil marriage">Kawin Siri/Nikah Sipil (Belum Tercatat Resmi)</option>
+                  <option value="Separated">Berpisah (Belum Cerai Resmi)</option>
+                  <option value="Widow">Janda/Duda</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Tipe Hunian <span class="required">*</span></label>
+                <select name="name_housing_type" required>
+                  <option value="House / apartment">Rumah/Apartemen Milik Sendiri</option>
+                  <option value="With parents">Tinggal Bersama Orang Tua</option>
+                  <option value="Municipal apartment">Apartemen/Rumah Susun Pemerintah</option>
+                  <option value="Rented apartment">Rumah/Apartemen Sewa</option>
+                  <option value="Office apartment">Rumah/Apartemen Dinas (Fasilitas Kantor)</option>
+                  <option value="Co-op apartment">Apartemen Koperasi</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex justify-between mt-4">
+              <button type="button" class="btn-outline btn-prev flex items-center gap-2" data-prev="1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+              </button>
+              <button type="button" class="btn-primary btn-next flex items-center gap-2" data-next="3">
+                Lanjut <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- STEP 3: PENGAJUAN KREDIT -->
+        <div class="form-step" data-step="3">
+          <div class="card">
+            <div class="card-header-icon">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+              <h3>Data Pengajuan Kredit & Keuangan</h3>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Total Penghasilan/Bulan (Rp) <span class="required">*</span></label>
+                <input type="number" name="amt_income_total" min="1500000" required>
+                <span class="field-hint">Gaji pokok ditambah pemasukan rutin lainnya.</span>
+              </div>
+              <div class="field">
+                <label>Jumlah Kredit Diajukan (Rp) <span class="required">*</span></label>
+                <input type="number" name="amt_credit" min="1000000" required>
+              </div>
+              <div class="field">
+                <label>Angsuran per Periode (Rp) <span class="required">*</span></label>
+                <input type="number" name="amt_annuity" min="1" required>
+              </div>
+              <div class="field">
+                <label>Harga Barang (Rp, opsional)</label>
+                <input type="number" name="amt_goods_price" min="0">
+                <span class="field-hint">Diisi bila pengajuan ditujukan untuk pembelian aset/barang tertentu.</span>
+              </div>
+            </div>
+            <div class="context-box">
+              <div class="context-box-title">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+              </div>
+              <p class="context-box-desc">Data berikut ditampilkan pada lembar hasil dan berkas komite kredit, tidak
+                memengaruhi bobot.</p>
+              <div class="field">
+                <label>Tujuan Penggunaan Dana</label>
+                <input type="text" name="tujuan_dana" placeholder="Contoh: Renovasi rumah">
+              </div>
+              <div class="field">
+                <label>Rencana Pembayaran</label>
+                <input type="text" name="rencana_pembayaran" placeholder="Contoh: Cicilan 24 bulan">
+              </div>
+            </div>
+            <div class="flex justify-between mt-4">
+              <button type="button" class="btn-outline btn-prev flex items-center gap-2" data-prev="2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+              </button>
+              <button type="button" class="btn-primary btn-next flex items-center gap-2" data-next="4">
+                Lanjut ke Review <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- STEP 4: REVIEW -->
+        <div class="form-step" data-step="4">
+          <div class="card">
+            <div class="card-header-icon">
+              <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+              <h3>Review Data</h3>
+            </div>
+            <div id="review-summary"></div>
+            <div class="flex justify-between mt-4">
+              <button type="button" class="btn-outline btn-prev flex items-center gap-2" data-prev="3">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+              </button>
+              <button type="submit" id="btn-submit-new" class="btn-primary flex items-center gap-2">
+                <i data-lucide="send" class="w-4 h-4"></i> Ajukan Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+
+    <!-- LOADING -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Memproses prediksi...</p>
+    </div>
+
+
+    <!-- HASIL -->
+    <section id="result" class="hidden mt-6">
+      <div id="disclaimer-banner" class="disclaimer-banner hidden"></div>
+      <div id="status-card" class="status-card">
+        <div class="status-icon-wrap">
+          <i data-lucide="check-circle-2" class="status-icon icon-approve"></i>
+          <i data-lucide="alert-octagon" class="status-icon icon-review"></i>
+        </div>
+        <span class="status-badge">Keputusan Sistem Machine Learning</span>
+        <h2 id="status-title"></h2>
+        <p id="status-detail"></p>
+        <div class="gauge-wrapper">
+          <div class="gauge-bar">
+            <div id="gauge-fill" class="gauge-fill"></div>
+            <div id="gauge-threshold" class="gauge-threshold"></div>
+          </div>
+          <p id="gauge-label"></p>
+          <div class="gauge-zone-labels">
+            <span>0% (Sangat Aman)</span>
+            <span class="zone-approve">Zona Persetujuan</span>
+            <span class="zone-review">Zona Review Manual</span>
+            <span>100% (Risiko Mutlak)</span>
+          </div>
+        </div>
+        <div id="context-summary" class="context-summary hidden"></div>
+        <div id="reasons-summary" class="reasons-summary hidden">
+          <div id="reasons-decrease-group" class="reasons-group decrease">
+            <h4><i data-lucide="trending-down" class="w-4 h-4 inline-block mr-1"></i> Faktor yang Menurunkan Risiko</h4>
+            <ul id="reasons-decrease"></ul>
+          </div>
+          <div id="reasons-increase-group" class="reasons-group increase">
+            <h4><i data-lucide="trending-up" class="w-4 h-4 inline-block mr-1"></i> Faktor yang Menaikkan Risiko</h4>
+            <ul id="reasons-increase"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center gap-3 mt-4">
+        <button class="btn-outline flex items-center gap-2" id="btn-reset">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Ajukan Baru
+        </button>
+        <button class="btn-primary flex items-center gap-2" id="btn-download-pdf">
+          <i data-lucide="file-down" class="w-4 h-4"></i> Unduh PDF
+        </button>
+      </div>
+    </section>
+
+
+    <div id="error-box" class="error-box hidden"></div>
+  </main>
+
+
+  <script src="{{ url_for('static', path='js/app.js') }}?v={{ app_version }}"></script>
+</body>
+
+
+</html>

@@ -1,0 +1,1 @@
+# conftest.py — menandai root project untuk pytest

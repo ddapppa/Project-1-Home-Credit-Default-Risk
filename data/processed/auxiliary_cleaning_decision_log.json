@@ -1,0 +1,76 @@
+{
+  "stage": "cleaning_auxiliary_tables",
+  "tables_audited": [
+    "bureau",
+    "bureau_balance",
+    "previous_application",
+    "POS_CASH_balance",
+    "credit_card_balance",
+    "installments_payments"
+  ],
+  "decisions": [
+    {
+      "table": "previous_application",
+      "issue": "Sentinel value 365243 di 5 kolom DAYS_*",
+      "columns_affected": [
+        "DAYS_FIRST_DRAWING",
+        "DAYS_FIRST_DUE",
+        "DAYS_LAST_DUE_1ST_VERSION",
+        "DAYS_LAST_DUE",
+        "DAYS_TERMINATION"
+      ],
+      "action": "Diganti menjadi NaN",
+      "rationale": "DAYS_FIRST_DRAWING sampai 56.14% berisi nilai boneka; dibiarkan akan merusak agregasi mean/max."
+    },
+    {
+      "table": "previous_application",
+      "issue": "RATE_INTEREST_PRIMARY hilang 99.65%",
+      "columns_affected": [
+        "RATE_INTEREST_PRIMARY"
+      ],
+      "action": "Kolom di-drop, tidak dibawa ke Feature Engineering v2",
+      "rationale": "Sinyal nyaris tidak ada (<0.5% terisi), konsisten dengan temuan publik di kompetisi ini."
+    },
+    {
+      "table": "bureau, previous_application, credit_card_balance",
+      "issue": "Nilai negatif pada beberapa kolom AMT_*",
+      "columns_affected": [
+        "AMT_CREDIT_SUM_DEBT",
+        "AMT_CREDIT_SUM_LIMIT",
+        "AMT_DOWN_PAYMENT",
+        "AMT_BALANCE",
+        "AMT_DRAWINGS_ATM_CURRENT",
+        "AMT_DRAWINGS_CURRENT"
+      ],
+      "action": "Tidak ada tindakan",
+      "rationale": "Persentase kejadian di bawah 0.5%, kemungkinan besar representasi kelebihan bayar (valid secara bisnis), dampak ke agregasi dapat diabaikan."
+    },
+    {
+      "table": "bureau, previous_application",
+      "issue": "Orphan SK_ID_CURR 14-16% (tidak ditemukan di application_train)",
+      "columns_affected": [
+        "SK_ID_CURR"
+      ],
+      "action": "Tidak difilter manual",
+      "rationale": "Sesuai proporsi client di application_test.csv (~13.68%); otomatis tersaring saat merge ke application_train di Feature Engineering v2."
+    },
+    {
+      "table": "bureau_balance, POS_CASH_balance, credit_card_balance, installments_payments",
+      "issue": "Orphan SK_ID_BUREAU/SK_ID_PREV 38-44% (tidak ditemukan di tabel induk)",
+      "columns_affected": [
+        "SK_ID_BUREAU",
+        "SK_ID_PREV"
+      ],
+      "action": "Tidak difilter manual",
+      "rationale": "Dikonfirmasi bukan bug (dtype cocok int64, verifikasi manual membuktikan ID memang tidak ada di tabel induk). Baris ini tidak bisa ditelusuri ke SK_ID_CURR mana pun sehingga otomatis tersaring saat merge berjenjang."
+    },
+    {
+      "table": "semua (6 tabel)",
+      "issue": "Duplikat baris & konsistensi dtype",
+      "columns_affected": [],
+      "action": "Tidak ada tindakan",
+      "rationale": "0 duplikat dan 0 masalah dtype ditemukan di seluruh tabel."
+    }
+  ],
+  "created_at": "2026-09-01T06:55:09.894907+00:00"
+}

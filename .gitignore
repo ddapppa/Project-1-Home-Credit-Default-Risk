@@ -1,23 +1,47 @@
-# Dataset mentah & hasil olahan (biasanya besar, tidak perlu di-push)
-data/raw/
-data/processed/
-*.csv
+# ============================================
+# DATASET MENTAH & HASIL OLAHAN (besar, regenerable dari script)
+# ============================================
+data/raw/*.csv
+data/processed/*.csv
 
-# Model hasil training (biasanya besar)
+# Kecualikan: data dictionary kecil, berguna sebagai dokumentasi kolom
+!data/raw/HomeCredit_columns_description.csv
+
+# ============================================
+# MODEL HASIL TRAINING (besar, regenerable dari notebooks/src/modeling)
+# ============================================
 models/
 *.pkl
 *.h5
 *.joblib
 
-# Python cache
+# Kecualikan: model kecil (~860KB) yang dibutuhkan agar demo FastAPI bisa jalan
+!FastAPI/app/ml/*.joblib
+!FastAPI/app/ml/*.json
+
+# ============================================
+# LOG RUNTIME (selalu berubah, tidak ada nilai historis)
+# ============================================
+*.log
+FastAPI/logs/
+
+# ============================================
+# PYTHON CACHE
+# ============================================
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+notebooks/catboost_info/
 
-# Environment
+# ============================================
+# ENVIRONMENT & SECRETS
+# ============================================
 venv/
 .env
+FastAPI/.env
 
-# Editor / OS (opsional tapi disarankan)
+# ============================================
+# EDITOR / OS
+# ============================================
 .vscode/
 .DS_Store

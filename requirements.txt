@@ -1,0 +1,11 @@
+import numpy as np
+import pandas as pd
+
+# Pearson & Spearman (numerik-numerik)
+from scipy.stats import pearsonr, spearmanr
+
+# Cramér's V (kategorikal-kategorikal) — dibangun dari chi-square test
+from scipy.stats import chi2_contingency
+
+# VarianceThreshold (fitur near-zero-variance, Bagian 10 di cleaning)
+from sklearn.feature_selection import VarianceThreshold

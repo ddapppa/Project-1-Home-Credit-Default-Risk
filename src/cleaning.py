@@ -60,27 +60,36 @@ def subset_selected_features(df, selected_features, id_col="SK_ID_CURR", target_
 
 # 2. Anomali DAYS_EMPLOYED
 
-"""Replace sentinel 365243 jadi NaN, buat flag khusus untuk 22 baris anomali yang bukan Pensioner (temuan cross-check EDA),
-lalu impute sisa NaN dengan median — karena model non-tree butuh nilai numerik utuh, tidak bisa dibiarkan NaN."""
+"""Replace sentinel 365243 jadi NaN, pada pensioner dan juga unemployed"""
 
-def fix_days_employed_anomaly(df):
+def fix_days_employed_sentinel(df):
     """
-    Replace sentinel anomaly 365243 pada DAYS_EMPLOYED menjadi NaN, lalu buat
-    flag DAYS_EMPLOYED_ANOMALY untuk baris anomaly yang BUKAN Pensioner (22
-    baris dari EDA, kategori Unemployed) supaya sinyal itu tidak hilang saat
-    DAYS_EMPLOYED diimputasi median di langkah berikutnya.
+    Tangani nilai sentinel 365243 pada DAYS_EMPLOYED.
+
+    Nilai 365243 bukan masa kerja aktual, melainkan kode sentinel pada dataset.
+    Fungsi ini:
+    1. Membuat flag DAYS_EMPLOYED_SENTINEL = 1 untuk seluruh baris yang
+       awalnya memiliki nilai 365243.
+    2. Mengubah nilai 365243 menjadi NaN.
+    3. Mengimputasi NaN dengan median DAYS_EMPLOYED valid agar seluruh model,
+       termasuk Logistic Regression dan MLP, dapat menerima data numerik
+       tanpa missing value.
+
+    Perbedaan Pensioner vs Unemployed tetap dipertahankan oleh fitur
+    NAME_INCOME_TYPE, sehingga tidak diperlukan flag khusus untuk 22 baris
+    Unemployed.
     """
     df = df.copy()
-    anomaly_mask = df["DAYS_EMPLOYED"] == DAYS_EMPLOYED_ANOMALY_VALUE
 
-    if "NAME_INCOME_TYPE" in df.columns:
-        non_pensioner_anomaly = anomaly_mask & (df["NAME_INCOME_TYPE"] != "Pensioner")
-    else:
-        non_pensioner_anomaly = anomaly_mask
+    sentinel_mask = df["DAYS_EMPLOYED"] == DAYS_EMPLOYED_ANOMALY_VALUE
 
-    df["DAYS_EMPLOYED_ANOMALY"] = non_pensioner_anomaly.astype(int)
-    df.loc[anomaly_mask, "DAYS_EMPLOYED"] = np.nan
-    df["DAYS_EMPLOYED"] = df["DAYS_EMPLOYED"].fillna(df["DAYS_EMPLOYED"].median())
+    df["DAYS_EMPLOYED_SENTINEL"] = sentinel_mask.astype("int8")
+
+    df.loc[sentinel_mask, "DAYS_EMPLOYED"] = np.nan
+
+    median_days_employed = df["DAYS_EMPLOYED"].median()
+    df["DAYS_EMPLOYED"] = df["DAYS_EMPLOYED"].fillna(median_days_employed)
+
     return df
 
 
@@ -185,12 +194,15 @@ def impute_credit_bureau_inquiries(df):
 """Fungsi ini baru dipanggil setelah verifikasi cross-tab di notebook mengonfirmasi keputusan nama kategori. Parameter replacement_category sengaja dibuat fleksibel, 
 bukan hardcode "Not_Working", supaya kamu bisa sesuaikan setelah lihat hasil verifikasinya nanti."""
 
-def impute_occupation_type(df, replacement_category="Not_Working"):
+def impute_occupation_type(df, replacement_category="Unknown_Occupation"):
     """
     Imputasi OCCUPATION_TYPE (missing 31,35%) dengan kategori replacement_category.
-    PENTING: fungsi ini baru dipanggil SETELAH verifikasi cross-tab di notebook
-    02_Cleaning.ipynb mengonfirmasi bahwa missing-nya memang berasal dari klien
-    yang tidak bekerja (Pensioner/Unemployed/dst), bukan missing acak.
+    PENTING: verifikasi cross-tab di 02_Cleaning.ipynb menunjukkan missing ini TIDAK
+    murni berasal dari klien tidak bekerja - hanya 57.46% dari Pensioner/Unemployed/
+    Student, sisanya 42.54% berasal dari Working/Commercial associate/State servant
+    yang justru bekerja tapi tidak melaporkan jenis okupasi spesifik. Karena itu
+    replacement_category default menggunakan "Unknown_Occupation", BUKAN "Not_Working",
+    agar tidak kontradiksi dengan NAME_INCOME_TYPE pada baris yang sama.
     """
     df = df.copy()
     if "OCCUPATION_TYPE" in df.columns:
@@ -199,24 +211,29 @@ def impute_occupation_type(df, replacement_category="Not_Working"):
 
 # 8. Log-Transform (Kolom Baru, Bukan Overwrite)
 """Buat kolom LOG_* untuk 4 fitur finansial sesuai outlier_treatment_decision.csv. Kolom asli tetap disimpan. 
-MT_ANNUITY (12 missing) dan AMT_GOODS_PRICE (278 missing) diimputasi median dulu supaya transform-nya tidak menghasilkan NaN."""
+AMT_ANNUITY (12 missing) dan AMT_GOODS_PRICE (278 missing) diimputasi median dulu supaya transform-nya tidak menghasilkan NaN."""
 
-def create_log_features(df):
+
+def create_log_features(df, cols=FINANCIAL_LOG_COLS):
     """
-    Buat kolom baru LOG_* (log1p) untuk 4 fitur finansial sesuai rekomendasi
-    outlier_treatment_decision.csv. Kolom asli TETAP disimpan (tidak di-overwrite)
-    supaya model tree-based bisa memakai versi asli, sedangkan model linear/
-    KNN/neural net memakai versi log. Imputasi median dilakukan dulu untuk
-    AMT_ANNUITY (12 missing) dan AMT_GOODS_PRICE (278 missing) sebelum transform.
+    Buat kolom LOG_* untuk fitur finansial (AMT_INCOME_TOTAL, AMT_CREDIT,
+    AMT_ANNUITY, AMT_GOODS_PRICE) menggunakan np.log1p, untuk menekan
+    outlier/skewness pada model yang sensitif skala (Logistic Regression,
+    KNN, MLP). Kolom asli TETAP disimpan untuk model tree-based.
+
+    AMT_ANNUITY dan AMT_GOODS_PRICE diimputasi median dulu (masih punya
+    missing tersisa dari data mentah) sebelum di-log, agar tidak
+    menghasilkan NaN pada kolom LOG_*.
     """
     df = df.copy()
-    for col in ["AMT_ANNUITY", "AMT_GOODS_PRICE"]:
+    for col in cols:
         if col in df.columns and df[col].isnull().sum() > 0:
             df[col] = df[col].fillna(df[col].median())
 
-    for col in FINANCIAL_LOG_COLS:
+    for col in cols:
         if col in df.columns:
             df[f"LOG_{col}"] = np.log1p(df[col])
+
     return df
 
 # 9. Rare Category Consolidation
